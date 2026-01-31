@@ -1,0 +1,7 @@
+[
+  {
+    "event": "PostToolUse",
+    "matcher": "Edit",
+    "command": "cd /Users/kwonjiho/Desktop/Github/project/findyourkicks-workspace && pnpm run check-types 2>&1 | tail -20"
+  }
+]
