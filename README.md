@@ -91,7 +91,7 @@ npx claude-subagent init --project-skills
 npx claude-subagent init --target ./my-project
 
 # 커스텀 레포 URL
-npx claude-subagent init --repo https://github.com/your-org/subagent.git
+npx claude-subagent init --repo https://github.com/xxziiko/subagent.git
 ```
 
 ### Available Commands
