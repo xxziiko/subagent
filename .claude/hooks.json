@@ -3,5 +3,10 @@
     "event": "PostToolUse",
     "matcher": "Edit",
     "command": "pnpm run check-types 2>&1 | tail -20"
+  },
+  {
+    "event": "PostToolUse",
+    "matcher": "Edit",
+    "command": "pnpm run lint --quiet 2>&1 | tail -20"
   }
 ]

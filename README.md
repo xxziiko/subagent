@@ -44,6 +44,7 @@ Chrome DevTools + Playwright 기반 end-to-end 버그 수정 파이프라인.
 | `create-pr` | 변경점 분석 후 PR 자동 생성 (Mermaid 다이어그램 포함) |
 | `git-diff-review` | git diff 기반 코드 분석 |
 | `react-performance` | React 렌더링 최적화 가이드 |
+| `playwright-e2e` | Playwright E2E 테스트 실행, 디버깅, 버그 재현 가이드 |
 | `frontend-design-guide` | 프론트엔드 설계 원칙 (가독성, 예측가능성, 응집도, 결합도) |
 | `three-phase-workflow` | 3단계 워크플로우 패턴 (탐색 → 계획 → 구현) |
 
@@ -53,7 +54,6 @@ Chrome DevTools + Playwright 기반 end-to-end 버그 수정 파이프라인.
 |------|------|
 | `project/sirloin-oms` | Sirloin OMS 기술 스택 및 컨벤션 |
 | `project/sirloin-oms-graphql` | GraphQL, Apollo Client 패턴 |
-| `project/playwright-e2e` | Playwright E2E 테스트 가이드 |
 
 > Project-specific 스킬은 특정 프로젝트에 종속적이므로 기본 설치에서 제외됩니다.
 
@@ -184,6 +184,7 @@ description: My project tech stack and conventions
 │   ├── create-pr/
 │   ├── frontend-design-guide/
 │   ├── git-diff-review/
+│   ├── playwright-e2e/
 │   ├── react-performance/
 │   └── three-phase-workflow/
 scripts/                        # Utility scripts
