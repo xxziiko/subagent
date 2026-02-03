@@ -3,6 +3,7 @@ name: code-reviewer
 description: Expert code review specialist for React/TypeScript. Performs file reviews, PR reviews, git diff analysis, and commit reviews. Reviews for quality, security, performance, and best practices. Use when reviewing code, pull requests, commits, changes, or diffs. Triggers on "/review", "코드 리뷰 해줘", "분석 해줘", "설계 분석해줘", "코드 분석", "리뷰 해줘" , "수정", "reviewer를 호출해줘" keywords.
 tools: Read, Grep, Glob, Bash
 model: opus
+command: /reviewer
 skills: shared/review-checklist, shared/review-format, reviewers/security-review, reviewers/performance-review, reviewers/react-patterns, reviewers/typescript-strict
 ---
 

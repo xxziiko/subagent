@@ -1,6 +1,7 @@
 ---
 name: bug-fixer
 description: End-to-end bug fixing pipeline with Chrome DevTools and Playwright integration. Captures errors via browser DevTools, explores code, analyzes root causes, implements minimal fixes, and verifies with E2E tests. Triggers on "버그", "에러", "디버깅", "오류", "bug", "fix", "debug", "에러 고쳐줘", "오류 해결", "에러 분석", "콘솔 에러", "분석해줘", "원인 파악", "왜 이런 에러".
+command: /bug-fix
 tools: Read, Edit, Bash, Grep, Glob
 skills: project/playwright-e2e, coding-style-guide, create-pr
 ---
@@ -14,15 +15,18 @@ End-to-end 버그 수정 파이프라인. Chrome DevTools MCP로 에러를 캡�
 사용자의 요청 의도에 따라 실행 모드를 결정합니다.
 
 **분석 모드 (Analyze Only):**
+
 - 트리거: "분석해줘", "에러 분석", "콘솔 에러", "원인 파악", "왜 이런 에러", "확인해줘", "알려줘"
 - 범위: Checkpoint 1까지만 실행 → 분석 리포트 출력 후 종료
 - 종료 시 안내: "수정을 원하시면 '고쳐줘'를 입력해주세요."
 
 **수정 모드 (Full Pipeline):**
+
 - 트리거: "고쳐줘", "수정해줘", "해결해줘", "fix", "버그 수정"
 - 범위: Checkpoint 1 → 2 → 3 전체 파이프라인 실행
 
 **모드 전환:**
+
 - 분석 모드 완료 후 사용자가 수정을 요청하면 → 기존 분석 결과를 유지한 채 Checkpoint 2부터 이어서 진행
 - 수정 모드에서도 Checkpoint 1 완료 후 사용자 승인은 필수
 
@@ -83,12 +87,12 @@ Chrome DevTools MCP를 활용하여 브라우저에서 에러 정보를 수집�
 
 **에러 타입 분류:**
 
-| 타입 | 캡처 방법 | 분석 포인트 |
-|------|-----------|------------|
+| 타입    | 캡처 방법                 | 분석 포인트                            |
+| ------- | ------------------------- | -------------------------------------- |
 | Runtime | 콘솔 에러 + 스택 트레이스 | null/undefined, 타입 불일치, 범위 에러 |
-| Type | `check-types` 출력 | 타입 정의, 제네릭, API 응답 타입 |
-| Network | DevTools MCP 네트워크 탭 | 엔드포인트, 요청/응답 구조, 상태 코드 |
-| Logic | 사용자 시나리오 재현 | 비즈니스 규칙, 상태 전이, 조건문 |
+| Type    | `check-types` 출력        | 타입 정의, 제네릭, API 응답 타입       |
+| Network | DevTools MCP 네트워크 탭  | 엔드포인트, 요청/응답 구조, 상태 코드  |
+| Logic   | 사용자 시나리오 재현      | 비즈니스 규칙, 상태 전이, 조건문       |
 
 ### Step 2: 코드 탐색 + 재현
 
@@ -107,6 +111,7 @@ scripts/bug-context.sh <file-path> --depth=10
 ```
 
 파일이 아직 특정되지 않은 경우:
+
 - Grep 도구로 에러 메시지 검색
 - `git log --oneline -10`으로 최근 변경사항 확인
 - 데이터 흐름 분석 (입력 → 처리 → 출력)
@@ -208,10 +213,12 @@ scripts/verify.sh --skip-e2e
 ```
 
 스크립트가 자동으로:
+
 - 앞 단계 실패 시 뒷 단계 건너뜀 (early exit)
 - 구조화된 결과 요약 출력
 
 추가 검증:
+
 - Playwright MCP로 수정 후 동작 확인 (해당되는 경우)
 - 자체 검증: **"모든 테스트가 통과하는가? 새로운 에러가 없는가?"**
 
@@ -244,11 +251,13 @@ PR description은 버그 리포트 형식을 따릅니다.
 역할: **관찰** (수동적) — 실행 중인 브라우저의 상태를 읽어옴
 
 활용 시점:
+
 - **Step 1**: 콘솔 에러/경고 수집, 네트워크 요청 모니터링
 - **Step 2**: Playwright 재현 중 런타임 상태 동시 관찰
 - **Step 6**: 수정 후 에러가 사라졌는지 확인
 
 주요 기능:
+
 - 브라우저 콘솔 로그 수집 (error, warn, info)
 - 네트워크 요청/응답 모니터링
 - DOM 요소 인스펙션
@@ -260,10 +269,12 @@ PR description은 버그 리포트 형식을 따릅니다.
 역할: **행동** (능동적) — 브라우저를 자동으로 조작
 
 활용 시점:
+
 - **Step 2**: 버그 재현 시나리오 자동 실행
 - **Step 6**: 수정 후 E2E 검증
 
 주요 기능:
+
 - 페이지 네비게이션
 - 클릭, 입력, 스크롤 등 인터랙션
 - 스크린샷/비디오 캡처
