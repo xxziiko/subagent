@@ -198,18 +198,20 @@ export function OrderPage() {
 
 ## 2. 번들 사이즈 최적화 (Bundle)
 
-### 2.1 Barrel Import 회피 (CRITICAL)
+### 2.1 Re-export (Barrel Index) 지양 - Tree-shaking 최적화 (CRITICAL) ⚠️
 
 **영향도**: CRITICAL (200-800ms 초기 로딩 시간 단축, 빌드 28% 개선)
 
-Barrel 파일(`index.ts`)에서 import하지 말고 직접 소스 파일에서 import합니다.
+**원칙**: Barrel 파일(`index.ts`)에서 re-export하지 말고, 각 파일에서 직접 import합니다.
+
+#### 외부 라이브러리 Import
 
 ```typescript
-// ❌ 나쁜 예: Barrel import (1,500+ 모듈 로드)
+// ❌ 나쁜 예: Barrel import (1,500+ 모듈 로드, tree-shaking 불가)
 import { Button, TextField, Dialog } from '@mui/material';
 import { Check, X, Menu } from 'lucide-react';
 
-// ✅ 좋은 예: 직접 import (필요한 것만 로드)
+// ✅ 좋은 예: 직접 import (필요한 것만 로드, tree-shaking 최적화)
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -218,7 +220,28 @@ import X from 'lucide-react/dist/esm/icons/x';
 import Menu from 'lucide-react/dist/esm/icons/menu';
 ```
 
-**Vite 최적화**:
+#### 프로젝트 내부 Import
+
+```typescript
+// ❌ 나쁜 예: Barrel export 사용
+// src/components/index.ts
+export { OrderList } from './OrderList';
+export { OrderCard } from './OrderCard';
+
+// 사용처
+import { OrderList, OrderCard } from '@/components';
+
+// ✅ 좋은 예: 직접 import (tree-shaking 최적화)
+import { OrderList } from '@/components/OrderList';
+import { OrderCard } from '@/components/OrderCard';
+```
+
+**이유**:
+- **Tree-shaking 최적화**: 번들러가 사용하지 않는 코드를 정확히 제거 가능
+- **빌드 성능**: 불필요한 중간 파일 처리 제거
+- **명확한 의존성**: 어떤 파일에서 import하는지 명확히 드러남
+
+**Vite 최적화** (선택적):
 
 Vite 설정에서 특정 패키지를 pre-bundle하도록 설정:
 
@@ -235,13 +258,58 @@ export default defineConfig({
 });
 ```
 
-**프로젝트 내부 barrel exports**:
+---
 
-프로젝트 내부에서는 barrel exports를 사용해도 괜찮습니다 (Vite가 최적화). 단, 외부 라이브러리에서는 직접 import를 사용하세요.
+### 2.2 Named Export 사용 - export default 지양 (HIGH) ⚠️
+
+**영향도**: HIGH (Tree-shaking 최적화, 리팩토링 안정성)
+
+**원칙**: `export default` 대신 `named export`만 사용합니다 (페이지 컴포넌트 제외).
+
+```typescript
+// ❌ 나쁜 예: export default
+const OrderCard = ({ order }: Props) => {
+  return <div>{order.title}</div>;
+};
+export default OrderCard;
+
+// 사용처
+import OrderCard from './OrderCard'; // 이름을 임의로 변경 가능 (위험)
+import OrderCardComponent from './OrderCard'; // 일관성 없음
+
+// ✅ 좋은 예: named export
+export function OrderCard({ order }: Props) {
+  return <div>{order.title}</div>;
+}
+
+// 사용처
+import { OrderCard } from './OrderCard'; // 이름이 명확히 고정됨
+```
+
+**이유**:
+- **Tree-shaking 최적화**: Named export는 번들러가 더 정확히 분석 가능
+- **리팩토링 안정성**: 이름 변경 시 IDE가 모든 사용처를 추적 가능
+- **일관성**: 같은 컴포넌트를 다른 이름으로 import하는 것 방지
+- **자동 완성**: IDE에서 정확한 이름 제안 가능
+
+**예외: 페이지 컴포넌트**
+
+라우팅 시스템(React Router, Next.js 등)과의 호환성을 위해 페이지 컴포넌트만 `export default` 사용:
+
+```typescript
+// ✅ 페이지 컴포넌트 (src/pages/OrderPage.tsx)
+export default function OrderPage() {
+  return (
+    <div>
+      <OrderList />
+    </div>
+  );
+}
+```
 
 ---
 
-### 2.2 조건부 모듈 로딩 (HIGH)
+### 2.3 조건부 모듈 로딩 (HIGH)
 
 **영향도**: HIGH (초기 번들 사이즈 감소)
 
@@ -273,7 +341,7 @@ export function OrderList({ orders }: Props) {
 
 ---
 
-### 2.3 Dynamic Import로 코드 스플리팅 (HIGH)
+### 2.4 Dynamic Import로 코드 스플리팅 (HIGH)
 
 **영향도**: HIGH (초기 로딩 시간 단축)
 
@@ -305,7 +373,7 @@ export function App() {
 
 ---
 
-### 2.4 Third-party 라이브러리 지연 로딩 (MEDIUM)
+### 2.5 Third-party 라이브러리 지연 로딩 (MEDIUM)
 
 **영향도**: MEDIUM (초기 번들 감소)
 
@@ -1175,6 +1243,8 @@ function OrderPolling() {
 - [ ] 데이터 의존성을 최소화했는가?
 
 ### 번들 사이즈
+- [ ] **Barrel export 지양**: 각 파일에서 직접 import했는가? (tree-shaking 최적화)
+- [ ] **Named export 사용**: `export default` 대신 named export를 사용했는가?
 - [ ] MUI, lucide-react 등 큰 라이브러리를 직접 import했는가?
 - [ ] 조건부로 필요한 모듈을 동적 import했는가?
 - [ ] 라우트별로 코드 스플리팅을 적용했는가?
@@ -1214,7 +1284,10 @@ function OrderPolling() {
 **핵심 원칙**:
 
 1. **비동기는 병렬로** - `Promise.all()` 적극 활용
-2. **번들은 작게** - 직접 import, 동적 import, 코드 스플리팅
+2. **번들은 작게** ⚠️
+   - **Barrel export 지양** - 각 파일에서 직접 import (tree-shaking 최적화)
+   - **Named export 사용** - `export default` 지양
+   - 직접 import, 동적 import, 코드 스플리팅
 3. **리렌더링은 최소화** - memo, 의존성 관리, 파생 상태 계산
 4. **렌더링은 효율적으로** - 조건부 렌더링, JSX 호이스팅, virtualization
 5. **데이터 페칭은 캐싱** - 중복 제거, 캐시 전략

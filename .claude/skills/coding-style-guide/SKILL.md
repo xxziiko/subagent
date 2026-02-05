@@ -135,7 +135,7 @@ export function OrderCard() {
 }
 ```
 
-### 페이지 컴포넌트: `export default`
+### 페이지 컴포넌트: `export default` (예외)
 
 페이지 컴포넌트만 `export default`로 작성합니다.
 
@@ -152,8 +152,10 @@ export default function OrderPage() {
 
 **이유**:
 
-- **일반 컴포넌트**: Named export로 일관성 유지, 리팩토링 시 추적 용이
+- **일반 컴포넌트**: Named export로 일관성 유지, 리팩토링 시 추적 용이, tree-shaking 최적화
 - **페이지 컴포넌트**: 라우팅 시스템(React Router, Next.js 등)과의 호환성
+
+**참고**: Named export의 성능 이점은 [react-performance](../react-performance/SKILL.md)의 "Named Export 사용" 섹션 참조
 
 ---
 
@@ -403,11 +405,12 @@ const fetchData = <T>(url: string): Promise<T> => {
 
 ---
 
-## 9. 배럴 Export 사용 (Barrel Exports)
+## 9. Re-export (Barrel Index) 지양 - Tree-shaking 최적화 ⚠️
 
-폴더의 파일을 export할 때는 `index.ts`를 사용한 배럴 export 형식을 사용합니다.
+**원칙**: `index.ts`를 통한 re-export(barrel export)를 지양하고, 각 파일에서 직접 import합니다.
 
 ```typescript
+// ❌ 나쁜 예: Barrel export 사용
 // src/components/order/index.ts
 export { OrderList } from './OrderList';
 export { OrderDetail } from './OrderDetail';
@@ -415,6 +418,16 @@ export { OrderForm } from './OrderForm';
 
 // 사용처
 import { OrderList, OrderDetail, OrderForm } from '@/components/order';
+// → tree-shaking이 제대로 작동하지 않을 수 있음
+
+// ✅ 좋은 예: 직접 import
+// index.ts 파일 없음
+
+// 사용처
+import { OrderList } from '@/components/order/OrderList';
+import { OrderDetail } from '@/components/order/OrderDetail';
+import { OrderForm } from '@/components/order/OrderForm';
+// → tree-shaking 최적화, 명확한 의존성
 ```
 
 **폴더 구조 예시**:
@@ -425,24 +438,26 @@ src/
 │   ├── order/
 │   │   ├── OrderList.tsx
 │   │   ├── OrderDetail.tsx
-│   │   ├── OrderForm.tsx
-│   │   └── index.ts  ← 배럴 export
-│   └── index.ts
+│   │   └── OrderForm.tsx
+│   └── common/
+│       ├── Button.tsx
+│       └── Input.tsx
 ├── hooks/
 │   ├── useOrder.ts
-│   ├── useAuth.ts
-│   └── index.ts  ← 배럴 export
+│   └── useAuth.ts
 └── utils/
     ├── format.ts
-    ├── validation.ts
-    └── index.ts  ← 배럴 export
+    └── validation.ts
 ```
 
 **이유**:
 
-- import 경로 간결화
-- 폴더 내부 구조 변경 시 외부 코드 영향 최소화
-- 명확한 public API
+- **Tree-shaking 최적화**: 번들러가 사용하지 않는 코드를 정확히 제거 가능
+- **빌드 성능**: 불필요한 중간 파일 처리 제거
+- **명확한 의존성**: 어떤 파일에서 import하는지 명확히 드러남
+- **성능**: 200-800ms 초기 로딩 시간 단축, 빌드 28% 개선
+
+**참고**: 성능 최적화 상세 내용은 [react-performance](../react-performance/SKILL.md)의 "Re-export (Barrel Index) 지양" 섹션 참조
 
 ---
 
@@ -874,7 +889,7 @@ const streetName = order.customer.address.street.name;
 - [ ] **Props**: 컴포넌트의 관심사만 포함하는가?
 - [ ] **비즈니스 로직**: 커스텀 훅으로 추상화했는가?
 - [ ] **타입 안정성**: `any` 타입을 사용하지 않았는가?
-- [ ] **배럴 Export**: `index.ts`를 사용했는가?
+- [ ] **Re-export 지양**: Barrel export 대신 직접 import를 사용했는가? (tree-shaking 최적화)
 - [ ] **파일 응집도**: 재사용되지 않는 코드를 무리하게 분리하지 않았는가?
 - [ ] **파일 라인 수**: 500줄을 초과하는 경우 분리를 고려했는가?
 - [ ] **결합도/응집도**: 낮은 결합도와 높은 응집도를 유지하는가?
@@ -895,7 +910,7 @@ const streetName = order.customer.address.street.name;
 6. **단일 책임** - 컴포넌트의 관심사만
 7. **훅 추상화** - 비즈니스 로직 분리
 8. **타입 안정성** - `any` 지양
-9. **배럴 Export** - 폴더 단위 export
+9. **Re-export 지양** - 각 파일에서 직접 import (tree-shaking 최적화)
 10. **응집도 우선** - 재사용 없으면 분리 안함
 11. **500줄 제한** - 초과 시 분리 고려
 12. **설계 원칙** - 낮은 결합도, 높은 응집도 (상세: frontend-design-guide 참조)
