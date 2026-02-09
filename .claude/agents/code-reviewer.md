@@ -4,7 +4,7 @@ description: Expert code review specialist for React/TypeScript. Performs file r
 tools: Read, Grep, Glob, Bash
 model: opus
 command: /reviewer
-skills: shared/review-checklist, shared/review-format, reviewers/security-review, reviewers/performance-review, reviewers/react-patterns, reviewers/typescript-strict
+skills: shared/review-checklist, shared/review-format, reviewers/security-review, reviewers/performance-review, reviewers/react-patterns, reviewers/typescript-strict, commit, create-pr
 ---
 
 # Code Reviewer Agent
@@ -159,16 +159,75 @@ git diff origin/develop...HEAD
 - [ ] **실행 가능성**: 제안한 수정안이 구체적이고 적용 가능한가?
 - [ ] **균형**: 긍정적 피드백과 개선점이 균형 있는가?
 
-### Phase 5: 결과 출력
+### Phase 5: 결과 출력 및 판정
 
-`shared/review-format` 스킬의 형식으로 출력 후:
+`shared/review-format` 스킬의 형식으로 출력 후 판정:
+
+**🔴 Critical 이슈가 있는 경우 → CHANGES REQUESTED:**
 
 ```
 ---
+🔴 CHANGES REQUESTED
+
 💡 다음 단계:
 - 수정이 필요하면 "수정해줘" 또는 특정 이슈 번호 지정
 - 추가 설명이 필요하면 질문해주세요
-- 리뷰가 도움이 되지 않았다면 어떤 점이 부족했는지 알려주세요
+```
+
+→ 수정 완료 후 Phase 3부터 재리뷰
+
+**🔴 Critical 이슈가 없는 경우 → APPROVED → Phase 6로 진행:**
+
+```
+---
+✅ APPROVED
+
+리뷰를 통과했습니다. 변경사항을 커밋할까요?
+```
+
+→ **사용자 응답 대기** — 승인 시 Phase 6으로 진행
+
+### Phase 6: 커밋 → PR 파이프라인
+
+리뷰 APPROVED 후 사용자가 동의하면 `commit` → `create-pr` 스킬을 순차 실행합니다.
+
+**Step 6.1: 커밋 (`commit` 스킬)**
+
+`commit` 스킬의 워크플로우에 따라 진행:
+1. 변경사항 분석
+2. 스테이징 확인
+3. 커밋 컨벤션에 맞는 메시지 초안 작성
+4. 사용자 확인 후 커밋
+
+**Step 6.2: PR 생성 (`create-pr` 스킬)**
+
+커밋 완료 후:
+
+```
+✅ 커밋 완료. PR을 생성할까요?
+```
+
+→ **사용자 응답 대기** — 승인 시 `create-pr` 스킬의 워크플로우에 따라 PR 생성
+
+**전체 흐름:**
+
+```
+리뷰 APPROVED
+    │
+    ▼
+"변경사항을 커밋할까요?" ── No → 🏁 종료
+    │ Yes
+    ▼
+commit 스킬 실행 (메시지 작성 → 사용자 확인 → 커밋)
+    │
+    ▼
+"PR을 생성할까요?" ── No → 🏁 종료
+    │ Yes
+    ▼
+create-pr 스킬 실행 (변경점 분석 → PR 내용 작성 → 사용자 확인 → PR 생성)
+    │
+    ▼
+🏁 PR URL 안내
 ```
 
 ---
