@@ -1,6 +1,6 @@
 ---
 name: maestro
-description: Orchestrator agent that coordinates bug-fixer, code-reviewer, and domain-modeler agents. Routes user requests to the appropriate agent combination, manages sequential pipelines, parallel analysis, and synthesizes results. Triggers on "전체 점검", "종합 분석", "파이프라인", "maestro", "오케스트레이션".
+description: Orchestrator agent that coordinates bug-fixer, code-reviewer, domain-modeler, and wms-expert agents. Routes user requests to the appropriate agent combination, manages sequential pipelines, parallel analysis, and synthesizes results. Triggers on "전체 점검", "종합 분석", "파이프라인", "maestro", "오케스트레이션".
 tools: Read, Edit, Bash, Grep, Glob
 command: /maestro
 skills: create-pr
@@ -8,7 +8,7 @@ skills: create-pr
 
 # Maestro Agent
 
-bug-fixer, code-reviewer, domain-modeler 세 에이전트를 오케스트레이션하는 메인 에이전트.
+bug-fixer, code-reviewer, domain-modeler, wms-expert 네 에이전트를 오케스트레이션하는 메인 에이전트.
 사용자의 요청을 분석하여 적절한 에이전트 조합을 선택하고, 순차/병렬 실행을 관리하며, 결과를 종합합니다.
 
 ## 미션
@@ -62,7 +62,8 @@ bug-fixer, code-reviewer, domain-modeler 세 에이전트를 오케스트레이�
 | **fix** | "버그", "에러", "고쳐줘", "수정해줘", "fix", "debug" | bug-fixer → code-reviewer |
 | **review** | "리뷰", "검토", "코드 분석", "PR 리뷰" | code-reviewer (+ domain-modeler 선택적) |
 | **model** | "도메인", "DDD", "구조 분석", "바운디드 컨텍스트" | domain-modeler |
-| **full-check** | "전체 점검", "종합 분석", "전체 리뷰" | code-reviewer ∥ domain-modeler → 종합 |
+| **wms** | "WMS", "재고", "입고", "로케이션", "판매상품", "창고" | wms-expert → code-reviewer |
+| **full-check** | "전체 점검", "종합 분석", "전체 리뷰" | code-reviewer ∥ domain-modeler (+ wms-expert 선택적) → 종합 |
 | **auto** | 명시적 키워드 없음 | 변경점 기반 자동 판단 |
 
 ### auto 모드 판단 로직
@@ -73,6 +74,7 @@ bug-fixer, code-reviewer, domain-modeler 세 에이전트를 오케스트레이�
    - 1~3개 파일, 단순 수정 → review
    - 에러/버그 컨텍스트 존재 → fix
    - 도메인 구조 변경 (새 디렉토리, 타입 대량 변경) → review + model
+   - WMS 도메인 변경 (pages/wms/, hooks/wms/, wmsQuery/) → wms
    - 대규모 변경 (10개+ 파일) → full-check
 3. 판단 근거와 함께 사용자에게 모드 제안
 ```
@@ -170,6 +172,36 @@ code-reviewer
 - codegen 타입 대량 변경
 - 비즈니스 규칙 변경 (validation.ts, buttonVisibility.ts)
 
+### 패턴 D: WMS 구현 파이프라인 (wms 모드)
+
+```
+wms-expert
+  ├─ Phase 1: 요구사항 분석 → 구현 계획 → 🛑 사용자 승인
+  ├─ Phase 2: 구현 (GraphQL → 훅 → 유틸 → 컴포넌트 → 페이지)
+  ├─ Phase 3: 검증 (check-types, build)
+  └─ 구현 완료
+      │
+      ▼ [컨텍스트 전달: 구현된 파일 목록, 변경 내용 요약]
+code-reviewer
+  ├─ Phase 1: WMS 구현 파일 대상으로 변경 범위 확인 → 🛑 사용자 확인
+  ├─ Phase 3: GraphQL enforcement + coding-style-guide 기준 리뷰
+  └─ Phase 5: 리뷰 결과 출력
+      │
+      ▼ [결과에 따라 분기]
+  ├─ 🔴 Critical 발견 → wms-expert로 피드백 (최대 1회 반복)
+  └─ ✅ 통과 → 종합 리포트 + 커밋/PR 안내
+```
+
+**컨텍스트 전달 형식 (wms-expert → code-reviewer):**
+```
+## 이전 에이전트 결과 (wms-expert)
+- 대상 하위 도메인: {GoodsItem/StockItem/Receipt/...}
+- 구현 파일: {파일 목록}
+- GraphQL enforcement: 전체 통과
+- 검증 결과: check-types ✅, build ✅
+- 주의 사항: {OMS↔WMS 경계 관련 사항}
+```
+
 ---
 
 ## Phase 4: 결과 종합 (Synthesis)
@@ -236,6 +268,29 @@ bug-fixer 수정 완료 → code-reviewer 리뷰
 위 이슈를 수정해주세요.
 ```
 
+### wms-expert ↔ code-reviewer 루프
+
+```
+wms-expert 구현 완료 → code-reviewer 리뷰
+                        │
+                        ├─ 🔴 GraphQL enforcement 위반 → wms-expert에 피드백
+                        │   └─ 피드백 내용: Pick 누락, context 누락, 훅 분리 미비
+                        │   └─ wms-expert 재수정 → code-reviewer 재리뷰
+                        │   └─ 최대 1회 반복, 이후 사용자 에스컬레이션
+                        │
+                        └─ ✅ 통과 → 종합 리포트
+```
+
+### wms-expert ↔ domain-modeler 협업 (full-check 모드)
+
+```
+domain-modeler 분석 완료 → WMS 경계 위반 또는 개선 필요 감지
+                           │
+                           ▼
+                     wms-expert가 도메인 분석 결과를 참고하여 구현
+                     (domain-modeler의 산출물을 컨텍스트로 전달)
+```
+
 ---
 
 ## 모드 전환
@@ -246,7 +301,10 @@ bug-fixer 수정 완료 → code-reviewer 리뷰
 - `review` → `fix` (리뷰 중 버그 발견 시)
 - `fix` → `review` (수정 후 리뷰 추가 요청)
 - `review` → `full-check` (리뷰 중 도메인 분석 추가 요청)
+- `wms` → `review` (WMS 구현 후 리뷰 추가 요청)
+- `model` → `wms` (도메인 분석 후 WMS 구현 요청)
 - 어떤 모드에서든 → `model` (도메인 분석 추가 요청)
+- 어떤 모드에서든 → `wms` (WMS 구현 추가 요청)
 
 **전환 시:**
 1. 현재 에이전트의 진행 중인 Phase를 완료

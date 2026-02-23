@@ -536,9 +536,8 @@ import Button from '@mui/material/Button';
 
 **범용 스킬** (프로젝트에 적용):
 
-- `frontend-design-guide`: 4가지 설계 원칙 (Readability, Predictability, Cohesion, Coupling)
+- `coding-style-guide`: 코드 스타일/컨벤션 + 4가지 설계 원칙 (Readability, Predictability, Cohesion, Coupling)
 - `react-performance`: React/TypeScript 성능 최적화
-- `coding-style-guide`: 코드 스타일 및 컨벤션
 - `three-phase-workflow`: 3단계 워크플로우 (탐색-계획-구현)
 - `create-pr`: PR 생성 자동화
 

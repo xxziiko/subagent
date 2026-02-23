@@ -362,9 +362,9 @@ Fix these before merging.
 
 ---
 
-## Integration with Frontend Design Guide
+## Integration with Coding Style Guide
 
-This skill always applies the **frontend-design-guide** principles:
+This skill always applies the **coding-style-guide** design principles (규칙 15-18):
 
 1. **Readability**: Check for magic numbers, complex ternaries, named conditions
 2. **Predictability**: Verify consistent return types, no hidden side effects
@@ -445,5 +445,5 @@ git diff -w origin/develop...HEAD
 
 - Focus on **changes**, not entire files
 - Provide **actionable** feedback
-- Follow **frontend-design-guide** standards
+- Follow **coding-style-guide** standards
 - Generate **structured**, easy-to-read output
