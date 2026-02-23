@@ -7,7 +7,10 @@
   },
   "main": "lib/installer.js",
   "files": [
-    ".claude/",
+    "skills/",
+    "agents/",
+    "plugins/",
+    ".claude-plugin/",
     "scripts/",
     "bin/",
     "lib/",
