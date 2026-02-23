@@ -1,6 +1,6 @@
 ---
 name: maestro
-description: Orchestrator agent that coordinates bug-fixer, code-reviewer, domain-modeler, and wms-expert agents. Routes user requests to the appropriate agent combination, manages sequential pipelines, parallel analysis, and synthesizes results. Triggers on "전체 점검", "종합 분석", "파이프라인", "maestro", "오케스트레이션".
+description: Orchestrator agent that coordinates bug-fixer, code-reviewer, domain-modeler, wms-expert, and e2e-tester agents. Routes user requests to the appropriate agent combination, manages sequential pipelines, parallel analysis, and synthesizes results. Triggers on "전체 점검", "종합 분석", "파이프라인", "maestro", "오케스트레이션".
 tools: Read, Edit, Bash, Grep, Glob
 command: /maestro
 skills: create-pr
@@ -8,7 +8,7 @@ skills: create-pr
 
 # Maestro Agent
 
-bug-fixer, code-reviewer, domain-modeler, wms-expert 네 에이전트를 오케스트레이션하는 메인 에이전트.
+bug-fixer, code-reviewer, domain-modeler, wms-expert, e2e-tester 다섯 에이전트를 오케스트레이션하는 메인 에이전트.
 사용자의 요청을 분석하여 적절한 에이전트 조합을 선택하고, 순차/병렬 실행을 관리하며, 결과를 종합합니다.
 
 ## 미션
@@ -59,11 +59,12 @@ bug-fixer, code-reviewer, domain-modeler, wms-expert 네 에이전트를 오케�
 
 | 모드 | 트리거 키워드 | 에이전트 조합 |
 |---|---|---|
-| **fix** | "버그", "에러", "고쳐줘", "수정해줘", "fix", "debug" | bug-fixer → code-reviewer |
+| **fix** | "버그", "에러", "고쳐줘", "수정해줘", "fix", "debug" | bug-fixer → code-reviewer (→ e2e-tester 선택적) |
 | **review** | "리뷰", "검토", "코드 분석", "PR 리뷰" | code-reviewer (+ domain-modeler 선택적) |
 | **model** | "도메인", "DDD", "구조 분석", "바운디드 컨텍스트" | domain-modeler |
-| **wms** | "WMS", "재고", "입고", "로케이션", "판매상품", "창고" | wms-expert → code-reviewer |
-| **full-check** | "전체 점검", "종합 분석", "전체 리뷰" | code-reviewer ∥ domain-modeler (+ wms-expert 선택적) → 종합 |
+| **wms** | "WMS", "재고", "입고", "로케이션", "판매상품", "창고" | wms-expert → code-reviewer (→ e2e-tester 선택적) |
+| **test** | "테스트", "E2E", "QA", "테스트 작성", "회귀 테스트" | e2e-tester |
+| **full-check** | "전체 점검", "종합 분석", "전체 리뷰" | code-reviewer ∥ domain-modeler (+ wms-expert, e2e-tester 선택적) → 종합 |
 | **auto** | 명시적 키워드 없음 | 변경점 기반 자동 판단 |
 
 ### auto 모드 판단 로직
@@ -75,6 +76,7 @@ bug-fixer, code-reviewer, domain-modeler, wms-expert 네 에이전트를 오케�
    - 에러/버그 컨텍스트 존재 → fix
    - 도메인 구조 변경 (새 디렉토리, 타입 대량 변경) → review + model
    - WMS 도메인 변경 (pages/wms/, hooks/wms/, wmsQuery/) → wms
+   - 테스트 파일 변경 (e2e/, *.test.ts) → test
    - 대규모 변경 (10개+ 파일) → full-check
 3. 판단 근거와 함께 사용자에게 모드 제안
 ```
@@ -202,6 +204,42 @@ code-reviewer
 - 주의 사항: {OMS↔WMS 경계 관련 사항}
 ```
 
+### 패턴 E: 테스트 파이프라인 (test 모드)
+
+```
+e2e-tester
+  ├─ Phase 1: 기능 분석 + Reconnaissance → 시나리오 매트릭스 → 🛑 사용자 승인
+  ├─ Phase 2: Mock + POM + 테스트 구현
+  ├─ Phase 3: 실행 검증 (pnpm exec playwright test)
+  └─ 테스트 작성 완료 → 결과 리포트
+```
+
+### 패턴 F: 수정 + 회귀 테스트 (fix → test 체인)
+
+```
+bug-fixer
+  └─ 수정 완료
+      │
+      ▼ [컨텍스트 전달: 버그 시나리오, 수정 파일]
+code-reviewer
+  └─ 리뷰 통과
+      │
+      ▼ [사용자가 회귀 테스트 요청 시]
+e2e-tester (regression 모드)
+  ├─ 버그 시나리오 → RED 테스트 작성
+  ├─ 수정 확인 → GREEN 검증
+  └─ 테스트 스위트에 추가
+```
+
+**컨텍스트 전달 형식 (bug-fixer → e2e-tester):**
+```
+## 이전 에이전트 결과 (bug-fixer)
+- 버그 제목: {제목}
+- 재현 시나리오: {단계}
+- 수정 파일: {파일 목록}
+- 영향받는 페이지: {URL/라우트}
+```
+
 ---
 
 ## Phase 4: 결과 종합 (Synthesis)
@@ -303,8 +341,11 @@ domain-modeler 분석 완료 → WMS 경계 위반 또는 개선 필요 감지
 - `review` → `full-check` (리뷰 중 도메인 분석 추가 요청)
 - `wms` → `review` (WMS 구현 후 리뷰 추가 요청)
 - `model` → `wms` (도메인 분석 후 WMS 구현 요청)
+- `fix` → `test` (수정 후 회귀 테스트 요청)
+- `wms` → `test` (WMS 구현 후 E2E 테스트 요청)
 - 어떤 모드에서든 → `model` (도메인 분석 추가 요청)
 - 어떤 모드에서든 → `wms` (WMS 구현 추가 요청)
+- 어떤 모드에서든 → `test` (E2E 테스트 추가 요청)
 
 **전환 시:**
 1. 현재 에이전트의 진행 중인 Phase를 완료
