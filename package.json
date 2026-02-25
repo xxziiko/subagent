@@ -1,13 +1,16 @@
 {
   "name": "claude-subagent",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Reusable Claude Code agents and skills installer - code review, bug fixing, and development workflows",
   "bin": {
     "claude-subagent": "./bin/cli.js"
   },
   "main": "lib/installer.js",
   "files": [
-    ".claude/",
+    "skills/",
+    "agents/",
+    "plugins/",
+    ".claude-plugin/",
     "scripts/",
     "bin/",
     "lib/",
