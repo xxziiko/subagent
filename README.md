@@ -5,23 +5,15 @@ Claude Code에서 사용할 수 있는 재사용 가능한 에이전트와 스�
 
 ## Agents
 
-### code-reviewer
-
-React/TypeScript 프로젝트를 위한 코드 리뷰 전문 에이전트.
-
-- PR 리뷰, 파일 리뷰, git diff 분석, 커밋 리뷰
-- 품질, 보안, 성능, 모범 사례 기반 리뷰
-- 5단계 워크플로우 (브랜치 확인 → 컨텍스트 이해 → 스킬 선택 → 상세 리뷰 → 셀프 검증)
-- 트리거: `/review`, `코드 리뷰 해줘`, `분석 해줘`, `리뷰 해줘`
-
-### bug-fixer
-
-Chrome DevTools + Playwright 기반 end-to-end 버그 수정 파이프라인.
-
-- 에러 캡처 → 코드 탐색 → 근본 원인 분석 → 최소 수정 → E2E 검증
-- 분석 모드 / 수정 모드 분기 지원
-- 3-체크포인트 파이프라인 (분석 → 수정 & 검증 → 커밋 & PR)
-- 트리거: `버그`, `에러`, `디버깅`, `fix`, `debug`
+| 에이전트 | 설명 | 커맨드 |
+|----------|------|--------|
+| `code-reviewer` | React/TypeScript 코드 리뷰 전문가. PR/파일/diff/커밋 리뷰 | `/reviewer` |
+| `bug-fixer` | Chrome DevTools + Playwright MCP 기반 E2E 버그 수정 파이프라인 | `/bug-fix` |
+| `e2e-tester` | Playwright E2E 테스트 작성 전문가. 시나리오 설계, POM, `page.route()` Mock | `/e2e-test` |
+| `integration-tester` | TDD 기반 통합 테스트 전문가. Vitest + RTL + MSW | `/integration-test` |
+| `domain-modeler` | DDD 기반 도메인 분석 전문가. 바운디드 컨텍스트, 엔티티, 도메인 이벤트 매핑 | `/domain-modeler` |
+| `wms-expert` | WMS(창고관리) 도메인 구현 전문가. 재고, 입고, 로케이션 등 7개 하위 도메인 | `/wms-expert` |
+| `maestro` | 오케스트레이터. 여러 에이전트를 조합하여 복합 작업 수행 | `/maestro` |
 
 ## Skills
 
@@ -36,16 +28,24 @@ Chrome DevTools + Playwright 기반 end-to-end 버그 수정 파이프라인.
 | `reviewers/security-review` | 보안 취약점 검사 |
 | `reviewers/performance-review` | 성능 최적화 검토 |
 
+### Testing Skills
+
+| 스킬 | 설명 |
+|------|------|
+| `playwright-e2e` | Playwright E2E 테스트 실행, 디버깅, CLI 명령어 가이드 |
+| `playwright-mcp` | Playwright MCP 브라우저 자동화 도구 레퍼런스, DevTools MCP 협력 패턴 |
+| `playwright-test-patterns` | E2E 테스트 작성 패턴. POM, Fixture, `page.route()` GraphQL Mock, 시나리오 설계 |
+| `integration-test-patterns` | 통합 테스트 작성 패턴. Vitest + RTL + MSW 기반 TDD 워크플로우 |
+
 ### Development Skills
 
 | 스킬 | 설명 |
 |------|------|
 | `coding-style-guide` | 14가지 코딩 원칙 (클린 코드, 네이밍, 타입 안전성 등) |
-| `create-pr` | 변경점 분석 후 PR 자동 생성 (Mermaid 다이어그램 포함) |
+| `create-pr` | 변경점 분석 후 PR 자동 생성 |
+| `commit` | 커밋 컨벤션에 맞는 커밋 생성 |
 | `git-diff-review` | git diff 기반 코드 분석 |
 | `react-performance` | React 렌더링 최적화 가이드 |
-| `playwright-e2e` | Playwright E2E 테스트 실행, 디버깅, 버그 재현 가이드 |
-| `frontend-design-guide` | 프론트엔드 설계 원칙 (가독성, 예측가능성, 응집도, 결합도) |
 | `three-phase-workflow` | 3단계 워크플로우 패턴 (탐색 → 계획 → 구현) |
 
 ### Project-specific Skills
@@ -54,6 +54,7 @@ Chrome DevTools + Playwright 기반 end-to-end 버그 수정 파이프라인.
 |------|------|
 | `project/sirloin-oms` | Sirloin OMS 기술 스택 및 컨벤션 |
 | `project/sirloin-oms-graphql` | GraphQL, Apollo Client 패턴 |
+| `project/sirloin-oms-graphql-enforcement` | GraphQL 스타일 가이드 강화 체크리스트 |
 
 > Project-specific 스킬은 특정 프로젝트에 종속적이므로 기본 설치에서 제외됩니다.
 
@@ -174,17 +175,25 @@ description: My project tech stack and conventions
 ```
 .claude/
 ├── agents/                     # Agent definitions
+│   ├── bug-fixer.md
 │   ├── code-reviewer.md
-│   └── bug-fixer.md
+│   ├── domain-modeler.md
+│   ├── e2e-tester.md
+│   ├── integration-tester.md
+│   ├── maestro.md
+│   └── wms-expert.md
 ├── skills/                     # Modular skills
 │   ├── shared/                 # Cross-agent shared skills
 │   ├── reviewers/              # Domain-specific review skills
 │   ├── project/                # Project-specific context
 │   ├── coding-style-guide/
+│   ├── commit/
 │   ├── create-pr/
-│   ├── frontend-design-guide/
 │   ├── git-diff-review/
+│   ├── integration-test-patterns/
 │   ├── playwright-e2e/
+│   ├── playwright-mcp/
+│   ├── playwright-test-patterns/
 │   ├── react-performance/
 │   └── three-phase-workflow/
 scripts/                        # Utility scripts

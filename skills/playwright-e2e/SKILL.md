@@ -232,27 +232,7 @@ await page.route('**/api/orders', route => {
 
 ## Playwright MCP 활용
 
-Playwright MCP가 설치된 경우, 에이전트가 직접 브라우저를 조작할 수 있습니다.
-
-### 버그 재현 워크플로우
-
-```
-1. Playwright MCP로 브라우저 열기
-2. 버그 발생 페이지로 이동
-3. networkidle 대기 (필수)
-4. 스크린샷으로 현재 상태 확인 (Reconnaissance)
-5. 버그 재현 시나리오 실행
-6. Chrome DevTools MCP와 연계하여 런타임 에러 확인
-```
-
-### 수정 검증 워크플로우
-
-```
-1. 코드 수정 후 개발 서버 반영 대기
-2. Playwright MCP로 동일 시나리오 재실행
-3. 에러가 사라졌는지 확인
-4. 스크린샷으로 수정 결과 증거 수집
-```
+Playwright MCP를 통한 브라우저 자동화(도구 레퍼런스, Reconnaissance-Then-Action 패턴, DevTools MCP 협력 패턴, 버그 재현/검증 워크플로우)는 `playwright-mcp` 스킬 참조.
 
 ---
 

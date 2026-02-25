@@ -209,9 +209,10 @@ export const test = authTest.extend<PageFixture>({
 
 ---
 
-## GraphQL Mock 패턴
+## GraphQL Mock 패턴 (`page.route()`)
 
 Sirloin OMS는 Apollo Client + GraphQL 기반이므로 API Mock이 핵심입니다.
+E2E 테스트에서는 **Playwright의 `page.route()`로 네트워크 요청을 가로채서 모킹**합니다. MSW는 사용하지 않습니다.
 
 ### GraphQL 요청 가로채기
 

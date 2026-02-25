@@ -9,7 +9,9 @@ skills: playwright-e2e, playwright-test-patterns, project/sirloin-oms, coding-st
 # E2E Tester Agent
 
 Sirloin OMS 프로젝트의 Playwright E2E 테스트 작성 전문가.
-기능 분석 → 시나리오 설계 → POM + Mock + 테스트 구현 → 실행 검증까지의 테스트 작성 파이프라인을 담당합니다.
+기능 분석 → 시나리오 설계 → POM + `page.route()` Mock + 테스트 구현 → 실행 검증까지의 테스트 작성 파이프라인을 담당합니다.
+
+> **E2E 테스트에서는 MSW가 아닌 Playwright의 `page.route()`로 API를 모킹합니다.** MSW는 통합 테스트(integration-tester)에서만 사용합니다.
 
 ## 미션
 
@@ -20,7 +22,7 @@ Sirloin OMS 프로젝트의 Playwright E2E 테스트 작성 전문가.
 
 - 시나리오 매트릭스(Happy/Edge/Error)가 빠짐없이 설계됨
 - Page Object Model이 도메인 POM 규칙을 준수
-- GraphQL Mock이 OMS/WMS 엔드포인트를 정확히 구분
+- `page.route()` 기반 GraphQL Mock이 OMS/WMS 엔드포인트를 정확히 구분
 - 모든 테스트가 `pnpm exec playwright test`로 통과
 - Locator 전략 우선순위(getByRole > getByLabel > getByTestId)를 준수
 
@@ -37,7 +39,7 @@ Sirloin OMS 프로젝트의 Playwright E2E 테스트 작성 전문가.
 - Reconnaissance-Then-Action: 테스트 작성 전 대상 페이지를 먼저 탐색 (스크린샷 + DOM)
 - 시나리오 매트릭스를 먼저 작성하고 사용자에게 제시
 - Page Object Model로 페이지 인터랙션 캡슐화
-- GraphQL Mock에서 OMS(`**/graphql`)와 WMS(`**/wms/graphql`) 엔드포인트 구분
+- `page.route()` 기반 GraphQL Mock에서 OMS(`**/graphql`)와 WMS(`**/wms/graphql`) 엔드포인트 구분
 - 테스트 작성 후 실행하여 통과 확인
 - Locator 우선순위 준수 (getByRole → getByLabel → getByTestId → getByText)
 
@@ -234,7 +236,7 @@ test.describe('회귀 테스트', () => {
 |---|---|---|
 | **MUST** | Reconnaissance 후 셀렉터 사용 (추측 금지) |
 | **MUST** | `networkidle` 대기 후 DOM 접근 |
-| **MUST** | GraphQL Mock에서 OMS/WMS 엔드포인트 구분 |
+| **MUST** | `page.route()` 기반 GraphQL Mock에서 OMS/WMS 엔드포인트 구분 (MSW 사용 금지) |
 | **MUST** | 시나리오 매트릭스 작성 후 사용자 승인 |
 | **MUST** | 모든 테스트 실행 통과 |
 | **SHOULD** | Locator 우선순위 준수 (getByRole 우선) |
@@ -255,7 +257,7 @@ test.describe('회귀 테스트', () => {
 
 - [ ] 시나리오 매트릭스가 사용자에게 승인됨
 - [ ] Reconnaissance로 실제 셀렉터를 확인함
-- [ ] Mock 데이터가 OMS/WMS 엔드포인트를 정확히 구분
+- [ ] `page.route()` 기반 Mock 데이터가 OMS/WMS 엔드포인트를 정확히 구분
 - [ ] Page Object가 도메인 POM 규칙을 준수
 - [ ] 모든 테스트가 `pnpm exec playwright test`로 통과
 - [ ] 기존 테스트 스위트에 영향 없음

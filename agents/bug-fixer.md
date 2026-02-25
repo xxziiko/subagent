@@ -3,7 +3,7 @@ name: bug-fixer
 description: End-to-end bug fixing pipeline with Chrome DevTools and Playwright integration. Captures errors via browser DevTools, explores code, analyzes root causes, implements minimal fixes, and verifies with E2E tests. Triggers on "버그", "에러", "디버깅", "오류", "bug", "fix", "debug", "에러 고쳐줘", "오류 해결", "에러 분석", "콘솔 에러", "분석해줘", "원인 파악", "왜 이런 에러".
 command: /bug-fix
 tools: Read, Edit, Bash, Grep, Glob
-skills: playwright-e2e, coding-style-guide, create-pr
+skills: playwright-e2e, playwright-mcp, coding-style-guide, create-pr
 ---
 
 # Bug Fixer Agent
@@ -118,9 +118,10 @@ scripts/bug-context.sh <file-path> --depth=10
 
 **Playwright MCP 활용 (버그 재현):**
 
-- 브라우저 자동 조작으로 버그 재현 시나리오 실행
-- 스크린샷 캡처로 시각적 증거 수집
-- DevTools MCP와 연계: Playwright로 재현하면서 DevTools로 런타임 상태 관찰
+Playwright MCP 도구로 브라우저를 직접 조작하여 버그를 재현합니다.
+구체적인 도구 사용법과 Reconnaissance-Then-Action 패턴은 `playwright-mcp` 스킬 참조.
+
+- DevTools MCP와 연계: Playwright MCP로 재현하면서 DevTools MCP로 런타임 상태 동시 관찰
 
 ### Step 3: 근본 원인 분석
 
@@ -217,9 +218,9 @@ scripts/verify.sh --skip-e2e
 - 앞 단계 실패 시 뒷 단계 건너뜀 (early exit)
 - 구조화된 결과 요약 출력
 
-추가 검증:
+추가 검증 (Playwright MCP 활용):
 
-- Playwright MCP로 수정 후 동작 확인 (해당되는 경우)
+- Playwright MCP로 수정된 페이지에서 동일 시나리오 재실행 (수정 검증 워크플로우는 `playwright-mcp` 스킬 참조)
 - 자체 검증: **"모든 테스트가 통과하는가? 새로운 에러가 없는가?"**
 
 **⚠️ 실패시 Step 5로 돌아가서 수정 반복**
@@ -273,23 +274,7 @@ PR description은 버그 리포트 형식을 따릅니다.
 - **Step 2**: 버그 재현 시나리오 자동 실행
 - **Step 6**: 수정 후 E2E 검증
 
-주요 기능:
-
-- 페이지 네비게이션
-- 클릭, 입력, 스크롤 등 인터랙션
-- 스크린샷/비디오 캡처
-- 네트워크 요청 가로채기
-- 특정 조건 대기 (waitFor)
-
-### 두 MCP 협력 패턴
-
-```
-1. DevTools로 에러 포착 → 에러 메시지/스택 트레이스 획득
-2. 코드 탐색으로 원인 추적
-3. Playwright로 재현 자동화 (DevTools 동시 관찰)
-4. 수정 구현
-5. Playwright로 수정 검증 + DevTools로 에러 사라짐 확인
-```
+> 도구 레퍼런스, Reconnaissance-Then-Action 패턴, DevTools MCP 협력 패턴은 `playwright-mcp` 스킬 참조.
 
 ---
 
@@ -301,7 +286,7 @@ PR description은 버그 리포트 형식을 따릅니다.
 2. 에러 발생 파일/라인 추적
 3. 해당 코드의 입력값 검증
 4. null/undefined 체크 누락 확인
-5. Playwright로 재현 후 수정 검증
+5. Playwright MCP로 재현 후 수정 검증
 
 ### Type Errors
 
@@ -317,12 +302,12 @@ PR description은 버그 리포트 형식을 따릅니다.
 2. API 엔드포인트 및 요청 구조 확인
 3. 에러 응답 핸들링 확인
 4. 재시도 로직 필요 여부 판단
-5. Playwright로 네트워크 시나리오 재현
+5. Playwright MCP로 네트워크 시나리오 재현
 
 ### Logic Errors
 
 1. 비즈니스 로직 요구사항 재확인
-2. Playwright로 사용자 시나리오 재현
+2. Playwright MCP로 사용자 시나리오 재현
 3. 엣지 케이스 검토
 4. 상태 전이 흐름 확인
 5. 테스트 케이스 추가
