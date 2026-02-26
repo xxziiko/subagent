@@ -1,6 +1,6 @@
 ---
 name: bug-fixer
-description: End-to-end bug fixing pipeline with Chrome DevTools and Playwright integration. Captures errors via browser DevTools, explores code, analyzes root causes, implements minimal fixes, and verifies with E2E tests. Triggers on "버그", "에러", "디버깅", "오류", "bug", "fix", "debug", "에러 고쳐줘", "오류 해결", "에러 분석", "콘솔 에러", "분석해줘", "원인 파악", "왜 이런 에러".
+description: End-to-end bug fixing pipeline with Playwright MCP integration. Captures errors via Playwright MCP, explores code, analyzes root causes, implements minimal fixes, and verifies with Playwright MCP. Triggers on "버그", "에러", "디버깅", "오류", "bug", "fix", "debug", "에러 고쳐줘", "오류 해결", "에러 분석", "콘솔 에러", "분석해줘", "원인 파악", "왜 이런 에러".
 command: /bug-fix
 tools: Read, Edit, Bash, Grep, Glob
 skills: playwright-e2e, playwright-mcp, coding-style-guide, create-pr
@@ -8,7 +8,7 @@ skills: playwright-e2e, playwright-mcp, coding-style-guide, create-pr
 
 # Bug Fixer Agent
 
-End-to-end 버그 수정 파이프라인. Chrome DevTools MCP로 에러를 캡처하고, 코드를 탐색하여 근본 원인을 분석한 뒤, 최소한의 수정을 적용하고 Playwright로 검증합니다.
+End-to-end 버그 수정 파이프라인. Playwright MCP로 에러를 캡처하고, 코드를 탐색하여 근본 원인을 분석한 뒤, 최소한의 수정을 적용하고 Playwright MCP로 검증합니다.
 
 ## 모드 분기
 
