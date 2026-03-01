@@ -2,6 +2,7 @@
 
 const { program } = require('commander');
 const path = require('path');
+const os = require('os');
 const {
   REPO_URL,
   SUBAGENT_DIR,
@@ -40,10 +41,12 @@ program
   .option('--skills <items>', 'Comma-separated additional skill names')
   .option('--scripts', 'Install utility scripts')
   .option('--project-skills', 'Include project-specific skills')
+  .option('--general-only', 'Install only general-purpose agents and skills (exclude project-specific)', false)
   .action(async (options) => {
     try {
       const targetDir = path.resolve(options.target);
       const copyMode = options.copy;
+      const generalOnly = options.generalOnly;
 
       console.log('\n  claude-subagent init\n');
 
@@ -62,12 +65,16 @@ program
       // Step 2: Discover available items
       const { agents, skills } = await discoverItems(sourceDir);
 
+      // Filter to general-only if requested
+      const availableAgents = generalOnly ? agents.filter(a => !a.isProject) : agents;
+      const availableSkills = generalOnly ? skills.filter(s => !s.isProject) : skills;
+
       // Step 3: Select agents
       let selectedAgents;
       if (options.agents) {
         selectedAgents = options.agents.split(',').map(s => s.trim());
       } else {
-        selectedAgents = await promptAgents(agents);
+        selectedAgents = await promptAgents(availableAgents);
       }
 
       if (selectedAgents.length === 0) {
@@ -75,8 +82,8 @@ program
         return;
       }
 
-      // Step 4: Resolve skill dependencies
-      const autoDeps = await resolveSkillDeps(sourceDir, selectedAgents);
+      // Step 4: Resolve skill dependencies (exclude project-skills when --general-only)
+      const autoDeps = await resolveSkillDeps(sourceDir, selectedAgents, { includeProject: !generalOnly });
 
       // Step 5: Select additional skills
       let selectedSkills = [...autoDeps];
@@ -85,16 +92,18 @@ program
         selectedSkills = [...new Set([...selectedSkills, ...extra])];
       } else if (!options.agents) {
         // Only prompt if we're in interactive mode
-        const additional = await promptAdditionalSkills(skills, autoDeps);
+        const additional = await promptAdditionalSkills(availableSkills, autoDeps);
         selectedSkills = [...new Set([...selectedSkills, ...additional])];
 
-        // Project-specific skills
-        if (options.projectSkills) {
-          const projectSkillNames = skills.filter(s => s.isProject).map(s => s.name);
-          selectedSkills = [...new Set([...selectedSkills, ...projectSkillNames])];
-        } else {
-          const projectSelected = await promptProjectSkills(skills);
-          selectedSkills = [...new Set([...selectedSkills, ...projectSelected])];
+        // Project-specific skills (skip entirely when --general-only)
+        if (!generalOnly) {
+          if (options.projectSkills) {
+            const projectSkillNames = skills.filter(s => s.isProject).map(s => s.name);
+            selectedSkills = [...new Set([...selectedSkills, ...projectSkillNames])];
+          } else {
+            const projectSelected = await promptProjectSkills(skills);
+            selectedSkills = [...new Set([...selectedSkills, ...projectSelected])];
+          }
         }
       }
 
@@ -107,7 +116,7 @@ program
       // Step 7: Execute installation
       console.log('\n  Installing...\n');
 
-      await installAgents(sourceDir, targetDir, selectedAgents, { copy: copyMode });
+      await installAgents(sourceDir, targetDir, os.homedir(), selectedAgents, { copy: copyMode });
       await installSkills(sourceDir, targetDir, selectedSkills, { copy: copyMode });
 
       if (shouldInstallScripts) {
@@ -180,7 +189,8 @@ program
 
       console.log('  Available agents:');
       for (const a of agents) {
-        console.log(`    - ${a.name}`);
+        const tag = a.isProject ? ' (project)' : ' (general)';
+        console.log(`    - ${a.name}${tag}`);
       }
 
       console.log('\n  Available skills:');

@@ -1,5 +1,6 @@
 ---
 name: commit
+category: project
 description: 커밋 컨벤션에 맞는 커밋 생성. "커밋해줘", "커밋 만들어줘", "변경사항 커밋" 요청 시 사용.
 command: /commit
 ---
