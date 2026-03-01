@@ -22,7 +22,6 @@ const {
   promptAgents,
   promptAdditionalSkills,
   promptProjectSkills,
-  promptScripts,
 } = require('../lib/prompts');
 
 program
@@ -82,8 +81,8 @@ program
         return;
       }
 
-      // Step 4: Resolve skill dependencies (exclude project-skills when --general-only)
-      const autoDeps = await resolveSkillDeps(sourceDir, selectedAgents, { includeProject: !generalOnly });
+      // Step 4: Resolve skill dependencies (always exclude project-skills; handled separately in Step 5)
+      const autoDeps = await resolveSkillDeps(sourceDir, selectedAgents, { includeProject: false });
 
       // Step 5: Select additional skills
       let selectedSkills = [...autoDeps];
@@ -107,11 +106,8 @@ program
         }
       }
 
-      // Step 6: Install scripts
-      let shouldInstallScripts = options.scripts || false;
-      if (!options.agents && !options.scripts) {
-        shouldInstallScripts = await promptScripts();
-      }
+      // Step 6: Install scripts (always install)
+      const shouldInstallScripts = true;
 
       // Step 7: Execute installation
       console.log('\n  Installing...\n');

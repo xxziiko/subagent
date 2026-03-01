@@ -1,0 +1,8 @@
+{
+  "name": "frontend-design-guide",
+  "description": "프론트엔드 설계 원칙 스킬 (가독성, 예측 가능성, 응집도, 낮은 결합도)",
+  "version": "1.0.0",
+  "author": {
+    "name": "xxziiko"
+  }
+}
