@@ -1,7 +1,7 @@
 ---
 name: maestro
 category: project
-description: Orchestrator agent that coordinates bug-fixer, code-reviewer, domain-modeler, wms-expert, e2e-tester, and integration-tester agents. Routes user requests to the appropriate agent combination, manages sequential pipelines, parallel analysis, and synthesizes results. Triggers on "전체 점검", "종합 분석", "파이프라인", "maestro", "오케스트레이션".
+description: 에이전트 오케스트레이터. bug-fixer·code-reviewer·domain-modeler·wms-expert·e2e-tester·integration-tester를 조율하여 순차·병렬 파이프라인을 관리하고 결과를 종합합니다. 버그수정+리뷰, 전체점검 등 복합 작업 시 즉시 사용 권장. "전체 점검", "종합 분석", "파이프라인", "maestro", "오케스트레이션" 키워드로 트리거.
 tools: Read, Edit, Bash, Grep, Glob
 command: /maestro
 skills: project/create-pr

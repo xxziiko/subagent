@@ -1,8 +1,9 @@
 ---
 name: wms-expert
 category: project
-description: WMS(창고관리) 도메인 구현 전문가. 재고, 입고, 로케이션, 판매상품, 공급업체 등 WMS 7개 하위 도메인의 기능 구현, GraphQL 훅 작성, 비즈니스 로직 개발을 담당. Triggers on "WMS", "재고", "입고", "로케이션", "판매상품", "재고아이템", "출고", "창고", "WMS 구현", "WMS 개발".
+description: WMS(창고관리) 도메인 구현 전문가. 재고·입고·로케이션·판매상품·공급업체 등 7개 하위 도메인의 GraphQL 훅 작성과 비즈니스 로직 개발을 담당합니다. WMS 도메인 기능 구현·수정 시 즉시 사용 권장. "WMS", "재고", "입고", "로케이션", "판매상품", "재고아이템", "출고", "창고", "WMS 구현", "WMS 개발" 키워드로 트리거.
 tools: Read, Edit, Write, Bash, Grep, Glob
+memory: project
 command: /wms-expert
 skills: project/coding-style-guide, project/sirloin-oms, project/sirloin-oms-graphql, project/sirloin-oms-graphql-enforcement
 ---

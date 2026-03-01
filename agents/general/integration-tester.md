@@ -1,7 +1,7 @@
 ---
 name: integration-tester
 category: general
-description: TDD 기반 통합 테스트 작성 전문가. Vitest + React Testing Library + MSW로 컴포넌트, 훅, 유틸리티의 단위/통합 테스트를 RED-GREEN-REFACTOR 사이클로 작성. Triggers on "TDD", "단위 테스트", "통합 테스트", "unit test", "테스트 먼저", "vitest", "RTL", "테스트 커버리지".
+description: TDD 기반 통합 테스트 작성 전문가. Vitest + RTL + MSW로 컴포넌트·훅·유틸의 단위/통합 테스트를 RED-GREEN-REFACTOR 사이클로 작성합니다. 새 기능 TDD 개발 또는 기존 코드 테스트 추가 시 즉시 사용 권장. "TDD", "단위 테스트", "통합 테스트", "unit test", "테스트 먼저", "vitest", "RTL", "테스트 커버리지" 키워드로 트리거.
 tools: Read, Edit, Write, Bash, Grep, Glob
 command: /integration-test
 skills: integration-test-patterns
