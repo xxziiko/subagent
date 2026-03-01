@@ -1,9 +1,11 @@
 ---
 name: e2e-tester
+category: general
 description: Playwright E2E 테스트 작성 전문가. 기능의 테스트 시나리오 설계, Page Object 작성, GraphQL Mock, 회귀 테스트 생성을 담당. Triggers on "테스트 작성", "E2E", "테스트 코드", "QA", "회귀 테스트", "test", "테스트 추가", "테스트 만들어줘".
 tools: Read, Edit, Write, Bash, Grep, Glob
 command: /e2e-test
-skills: playwright-e2e, playwright-test-patterns, project/sirloin-oms, coding-style-guide
+skills: playwright-e2e, playwright-test-patterns
+project-skills: project/coding-style-guide, project/sirloin-oms
 ---
 
 # E2E Tester Agent

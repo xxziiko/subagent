@@ -1,9 +1,10 @@
 ---
 name: domain-modeler
+category: project
 description: Domain-Driven Design specialist for Sirloin OMS frontend. Analyzes codebase to map bounded contexts, entities, value objects, domain events, repositories, and domain services. Produces structured domain documentation. Triggers on "도메인 분석", "도메인 모델링", "DDD 매핑", "도메인 맵", "바운디드 컨텍스트", "도메인 문서화".
 tools: Read, Grep, Glob, Bash
 command: /domain-modeler
-skills: coding-style-guide, project/sirloin-oms, project/sirloin-oms-graphql, project/sirloin-oms-graphql-enforcement
+skills: project/coding-style-guide, project/sirloin-oms, project/sirloin-oms-graphql, project/sirloin-oms-graphql-enforcement
 ---
 
 # Domain Modeler Agent

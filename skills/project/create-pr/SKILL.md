@@ -1,5 +1,6 @@
 ---
 name: create-pr
+category: project
 description: 현재 브랜치 변경점 분석 후 PR 생성. "PR 작성/만들어줘", "PR 생성", "풀리퀘 생성" 요청 시 사용.
 command: /create-pr
 ---

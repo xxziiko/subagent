@@ -1,9 +1,11 @@
 ---
 name: bug-fixer
+category: general
 description: End-to-end bug fixing pipeline with Playwright MCP integration. Captures errors via Playwright MCP, explores code, analyzes root causes, implements minimal fixes, and verifies with Playwright MCP. Triggers on "버그", "에러", "디버깅", "오류", "bug", "fix", "debug", "에러 고쳐줘", "오류 해결", "에러 분석", "콘솔 에러", "분석해줘", "원인 파악", "왜 이런 에러".
 command: /bug-fix
 tools: Read, Edit, Bash, Grep, Glob
-skills: playwright-e2e, playwright-mcp, coding-style-guide, create-pr
+skills: playwright-e2e, playwright-mcp
+project-skills: project/coding-style-guide, project/create-pr
 ---
 
 # Bug Fixer Agent
