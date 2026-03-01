@@ -2,6 +2,7 @@
 
 const { program } = require('commander');
 const path = require('path');
+const os = require('os');
 const {
   REPO_URL,
   SUBAGENT_DIR,
@@ -115,7 +116,7 @@ program
       // Step 7: Execute installation
       console.log('\n  Installing...\n');
 
-      await installAgents(sourceDir, targetDir, selectedAgents, { copy: copyMode });
+      await installAgents(sourceDir, targetDir, os.homedir(), selectedAgents, { copy: copyMode });
       await installSkills(sourceDir, targetDir, selectedSkills, { copy: copyMode });
 
       if (shouldInstallScripts) {
